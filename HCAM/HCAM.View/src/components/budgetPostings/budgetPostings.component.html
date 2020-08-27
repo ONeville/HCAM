@@ -1,0 +1,186 @@
+<v-layout>
+    <v-flex xs12>
+      <v-card>
+        <v-card-title primary-title>
+          <div>
+            <h2 class="headline mb-0">{{title}}</h2>
+          </div>
+        </v-card-title>
+      </v-card>
+      <template>
+        <div>
+          <v-alert type="error" :value="true" v-for="error in errors"
+            :key="error">
+                <span>{{ error }}</span>
+            </v-alert>
+          <v-btn @click.stop="goToPosting" dark color="pink">
+            Postings
+            <v-icon right dark>settings</v-icon>
+          </v-btn>
+          <v-btn color="primary" @click.native="Post" v-if="!isPosted" class="white--text">
+            Post
+            <v-icon right dark>file_upload</v-icon>
+          </v-btn>
+          <v-btn color="primary" @click.native="saveEditItems" v-if="!isPosted" class="white--text">
+            Save
+            <v-icon right dark>save</v-icon>
+          </v-btn>
+          <v-card>
+            <v-card-title primary-title>
+                <v-container fluid class="pa-0">
+                    <v-layout row wrap>
+                        <v-flex xs4 sm2>
+                            <v-menu
+                                ref="menuStart" lazy :close-on-content-click="false"
+                                v-model="menuStart" transition="scale-transition" offset-y full-width :nudge-right="40"
+                                min-width="290px">
+                                <v-text-field
+                                slot="activator" label="Period start date" v-model="filterItem.endDate" prepend-icon="event" readonly></v-text-field>
+                                <v-date-picker
+                                ref="picker" v-model="filterItem.endDate" min="1950-01-01" :max="new Date().toISOString().substr(0, 10)"></v-date-picker>
+                            </v-menu>
+                        </v-flex>
+                        <v-flex xs4 sm2>
+                          <!-- @change="saveEndDate" -->
+                            <v-menu
+                                ref="menuEnd" lazy :close-on-content-click="false"
+                                v-model="menuEnd" transition="scale-transition" offset-y full-width :nudge-right="40"
+                                min-width="290px">
+                                <v-text-field
+                                slot="activator" label="Period end date" v-model="filterItem.endDate" prepend-icon="event" readonly></v-text-field>
+                                <v-date-picker
+                                ref="picker" v-model="filterItem.endDate" min="1950-01-01" :max="new Date().toISOString().substr(0, 10)"></v-date-picker>
+                            </v-menu>
+                        </v-flex>
+                        <v-flex xs10 sm6>
+                        </v-flex>
+                        <v-flex xs2 sm2>
+                            <v-btn color="green" justify-start dark @click.native="Search">
+                                Refresh
+                              <v-icon>autorenew</v-icon>
+                            </v-btn>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+
+              <div>
+              </div>
+            </v-card-title>
+          </v-card>
+          <v-container fluid class="pa-0">
+              <v-layout row wrap>
+                <v-flex xs3 sm3 class="pr-2 my-1">
+                    <v-card>
+                        <v-list two-line subheader>
+                          <v-subheader inset>Postings</v-subheader>
+                          <v-list-tile v-for="item in items" :key="item.id" avatar @click="getDetails(item)">
+                            <v-list-tile-avatar>
+                              <v-icon class="blue white--text">assignment</v-icon>
+                            </v-list-tile-avatar>
+                            <v-list-tile-content>
+                              <v-list-tile-title>{{ item.description }}</v-list-tile-title>
+                              <v-list-tile-sub-title :style="subtitleStyle">
+                                {{ item.startDateText }} --
+                                {{ item.endDateText }}
+                              </v-list-tile-sub-title>
+                            </v-list-tile-content>
+                            <v-list-tile-action>
+                              <v-btn icon ripple  @click="editPosting(item)">
+                                <v-icon color="grey lighten-1">info</v-icon>
+                              </v-btn>
+                            </v-list-tile-action>
+                          </v-list-tile>
+                        </v-list>
+                      </v-card>
+                </v-flex>
+                <v-flex xs9 sm9>
+                    <v-data-table :headers="headers" :items="itemDetails" item-key="id" class="elevation-1">
+                        <template slot="items" slot-scope="props">
+                            <td class="justify-center layout px-0">
+                                <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                                <v-icon color="pink">delete</v-icon>
+                                </v-btn>
+                            </td>
+                            <td >{{ props.item.description }}</td>
+                            <td class="text-xs-center">{{ props.item.frequencyName }}</td>
+                            <td class="text-xs-center">
+                                <span v-if="isPosted">{{ setItemDate(props.item.effectiveDate) }}</span>
+                                <v-edit-dialog :return-value.sync="props.item.effectiveDate" v-if="!isPosted" persistent> 
+                                  <!-- {{ setItemDate(props.item.effectiveDate) }} full-width="false"-->
+                                  <v-menu ref="props.item.menuEffDt" lazy :close-on-content-click="false" v-model="props.item.menuEffDt" transition="scale-transition" offset-y full-width :nudge-right="40" min-width="80px" :return-value.sync="props.item.effectiveDate">
+                                      <v-text-field slot="activator" v-model="props.item.effectiveDate"  readonly class="input-group--focused"></v-text-field>
+                                      <!-- mask="####-##-##" prepend-icon="event"  label="Start Date"-->
+                                      <v-date-picker v-model="props.item.effectiveDate" no-title scrollable>
+                                          <v-btn flat color="primary" @click="props.item.menuEffDt = false">Cancel</v-btn>
+                                          <v-btn flat color="primary" @click="$refs.props.item.menuEffDt.save(props.item.effectiveDate)">OK</v-btn>
+                                      </v-date-picker>
+                                  </v-menu>
+                                </v-edit-dialog>
+                            </td>
+                            <td class="text-xs-right">
+                              <span v-if="isPosted">{{ props.item.budgetAmount }}</span>
+                              <!-- {{ props.item.budgetAmount }} -->
+                              <v-edit-dialog :return-value.sync="props.item.budgetAmount" v-if="!isPosted" lazy0> 
+                                  {{ props.item.budgetAmount }}
+                                  <v-text-field slot="input"
+                                    label="Edit Budget amount" v-model="props.item.budgetAmount"></v-text-field>
+                                </v-edit-dialog>
+                            </td>
+                            <td class="text-xs-right">
+                              <span v-if="isPosted">{{ props.item.actualAmount }} </span>
+                            <!-- <td >{{ props.item.actualAmount }} -->
+                                <v-edit-dialog :return-value.sync="props.item.actualAmount" v-if="!isPosted" lazy0> 
+                                    {{ props.item.actualAmount }}
+                                    <v-text-field slot="input"
+                                      label="Edit Actual amount" v-model="props.item.actualAmount"></v-text-field>
+                                  </v-edit-dialog>
+                            </td>
+                            <td>
+                                <span v-if="isPosted">{{ props.item.memo }} </span>
+                              <!-- {{ props.item.memo }} -->
+                                <v-edit-dialog :return-value.sync="props.item.memo" v-if="!isPosted" lazy0> 
+                                    {{ props.item.memo }}
+                                    <v-text-field slot="input"
+                                      label="Edit Memo" v-model="props.item.memo"></v-text-field>
+                                  </v-edit-dialog>
+                            </td>
+                            <!-- <td >
+                              <v-edit-dialog :return-value.sync="props.item.accountingCode" lazy0> 
+                                {{ props.item.accountingCode }}
+                                <v-text-field slot="input"
+                                  label="Edit" v-model="props.item.accountingCode"></v-text-field>
+                              </v-edit-dialog>
+                            </td> -->
+                        </template>
+                        <template slot="no-data">
+                          <span>No data found!</span>
+                        </template>
+                      </v-data-table>
+                </v-flex>
+              </v-layout>
+          </v-container>
+
+          <v-navigation-drawer temporary right ref="drawerPosting" v-model="drawerPosting" absolute :style="drawerStyle">
+              <v-list class="pa-1">
+                <v-list-tile avatar>
+                  <v-list-tile-avatar>
+                      <v-icon dark>assignment</v-icon>
+                  </v-list-tile-avatar>
+                  <v-list-tile-content>
+                    <v-list-tile-title>Postings</v-list-tile-title>
+                  </v-list-tile-content>
+                  <v-list-tile-avatar>
+                      <v-btn flat icon color="red" @click="drawerPosting = false">
+                          <v-icon>close</v-icon>
+                      </v-btn>
+                  </v-list-tile-avatar>
+                </v-list-tile>
+              </v-list>
+              <PostingView 
+                :curentIndex="postingSelectedIndex" :currentItem="postingSelected"
+                v-on:isClosed="closePosting"></PostingView>
+            </v-navigation-drawer>
+        </div>
+      </template>
+    </v-flex>
+  </v-layout>

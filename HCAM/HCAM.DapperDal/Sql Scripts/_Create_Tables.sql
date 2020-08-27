@@ -1,0 +1,125 @@
+﻿DROP TABLE [Users]
+DROP TABLE [JournalEntries]
+DROP TABLE [Entries]
+DROP TABLE [AccountTypes]
+DROP TABLE [Accounts]
+
+CREATE TABLE [Users](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [UserName] [varchar](150) NOT NULL,
+ CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [JournalEntries](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [DebitAccountId] [int] NOT NULL,
+  [CreditAccountId] [int] NOT NULL,
+  [EntryId] [int] NOT NULL,
+  [UserId] [int] NULL,
+  [Memo] [varchar](255) NULL,
+ CONSTRAINT [PK_JournalEntries] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [Entries](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [EntryDescription] [varchar](250) NOT NULL,
+  [Amount] [money] NOT NULL,
+  [EntryDate] [Date] NOT NULL,
+ CONSTRAINT [PK_Entries] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [AccountTypes](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [AccountTypeName] [varchar](250) NOT NULL,
+ CONSTRAINT [PK_AccountTypes] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [Accounts](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [AccountName] [varchar](250) NOT NULL,
+  [AccountTypeId] [int] NOT NULL,
+ CONSTRAINT [PK_Accounts] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [ActionCodes](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [Code] [int] NOT NULL,
+  [Name] [varchar](250) NOT NULL,
+  [Description] [varchar](250) NULL,
+  [IsFee] [bit] NULL,
+  [IsAsset] [bit] NULL,
+  [IsLiability] [bit] NULL,
+  [IsEquity] [bit] NULL,
+  [Frequency]  [int] NOT NULL,
+ CONSTRAINT [PK_Accounts] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+DROP TABLE [CodeMappers]
+CREATE TABLE [CodeMappers](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [MapperName] [varchar](250) NOT NULL,
+  [IsDefault] [bit] NULL,
+ CONSTRAINT [PK_CodeMappers] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+DROP TABLE [CodeMapperDetails]
+CREATE TABLE [CodeMapperDetails](
+  [CodeMapperId] [int] NOT NULL,
+  [ActionCodeId] [int] NOT NULL,
+  [CreditAccountId] [int] NULL,
+  [DebitAccountId] [int] NULL,
+  [AccountingCode]  [varchar](250) NULL,
+ CONSTRAINT [PK_CodeMapperDetails] PRIMARY KEY CLUSTERED
+(
+  [CodeMapperId] ASC,
+  [ActionCodeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [Postings](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [CodeMappingId] [int] NOT NULL,
+  [StartDate] [Date] NOT NULL,
+  [EndDate] [Date] NOT NULL,
+  [Description] [varchar](255) NULL,
+  [Post] [bit] NULL,
+ CONSTRAINT [PK_Postings] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [PostingDetails](
+  [Id] [int] IDENTITY(1,1) NOT NULL,
+  [PostingId] [int] NOT NULL,
+  [ActionCodeId] [int] NOT NULL,
+  [BudgetAmount] [Money] NULL,
+  [ActualAmount] [Money] NULL,
+  [EffectiveDate] [Date] NULL,
+  [Memo] [varchar](255) NULL,
+ CONSTRAINT [PK_PostingDetails] PRIMARY KEY CLUSTERED
+(
+  [Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]

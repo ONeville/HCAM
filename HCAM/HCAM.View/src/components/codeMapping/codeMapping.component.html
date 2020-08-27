@@ -1,0 +1,101 @@
+<v-layout>
+  <v-flex xs12>
+    <v-card>
+      <v-card-title primary-title>
+        <div>
+          <p>{{upTitle}}</p>
+          <h2 class="headline mb-0">{{title}}</h2>
+          <v-divider></v-divider>
+        </div>
+      </v-card-title>
+    </v-card>
+    <template>
+      <div>
+          <v-alert type="error" :value="true" v-for="error in errors"
+          :key="error">
+              <span>{{ error }}</span>
+          </v-alert>
+        <v-btn @click.stop="drawerMapper = !drawerMapper" dark color="pink">
+          Mappings
+          <v-icon right dark>settings</v-icon>
+        </v-btn>
+        <v-btn color="primary" v-if="mapperSelected && !mapperSelected.isDefault" class="white--text" @click.native="setDefault">
+          Set Default
+          <v-icon right dark>cloud_upload</v-icon>
+        </v-btn>
+        <v-btn color="primary" @click.native="saveEditItems" class="white--text">
+          Save
+          <v-icon right dark>save</v-icon>
+        </v-btn>
+        <v-card>
+          <v-card-title primary-title>
+            <div>
+                <!--prepend append-icon="map" -->
+              <v-select small label="Select mapping" autocomplete  :items="items"
+                  v-model="mapperSelected" item-text="mapperName" item-value="id" :return-object="true" append-icon="class" @change="changedMapping">
+              </v-select>
+            </div>
+          </v-card-title>
+        </v-card>
+
+        <v-data-table :headers="headers" :items="itemDetails" item-key="actionCode" class="elevation-1">
+          <template slot="items" slot-scope="props">
+              <td class="justify-center layout px-0">
+                  <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                  <v-icon color="pink">delete</v-icon>
+                  </v-btn>
+              </td>
+              <td >{{ props.item.actionCode }}</td>
+              <td >{{ props.item.actionCodeName }}</td>
+              <td >
+                <!-- {{ props.item.creditAccountName }} -->
+                <v-edit-dialog :return-value.sync="props.item.creditAccountName" lazy0> 
+                    <!-- {{ props.item.creditAccountName }} -->
+                    <v-select autocomplete  :items="accounts" @change="changedValue"
+                        v-model="props.item.creditAccountId" item-text="accountName" item-value="id" >
+                    </v-select>
+                </v-edit-dialog>
+              </td>
+              <td >
+                  <v-edit-dialog :return-value.sync="props.item.debitAccountName" lazy0> 
+                      <!-- {{ props.item.debitAccountName }} -->
+                      <v-select autocomplete  :items="accounts" @change="changedValue"
+                          v-model="props.item.debitAccountId" item-text="accountName" item-value="id" >
+                      </v-select>
+                  </v-edit-dialog>
+                <!-- {{ props.item.debitAccountName }} -->
+              </td>
+              <td >
+                <v-edit-dialog :return-value.sync="props.item.accountingCode" lazy0> 
+                  {{ props.item.accountingCode }}
+                  <v-text-field slot="input"
+                    label="Edit" v-model="props.item.accountingCode"></v-text-field>
+                </v-edit-dialog>
+              </td>
+          </template>
+          <template slot="no-data">
+            <v-btn :loading="loading3" @click.native="loader = 'loading3'"
+              :disabled="loading3" color="blue-grey" class="white--text">
+              Generate mapping
+              <v-icon right dark>settings</v-icon>
+            </v-btn>
+          </template>
+        </v-data-table>
+
+        <v-navigation-drawer temporary right v-model="drawerMapper" absolute :style="drawerMap">
+            <v-list class="pa-1">
+              <v-list-tile avatar>
+                <v-list-tile-avatar>
+                    <v-icon dark>class</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>Mappings</v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+            <MapperTag :title="subTitle"></MapperTag>
+          </v-navigation-drawer>
+      </div>
+    </template>
+  </v-flex>
+</v-layout>

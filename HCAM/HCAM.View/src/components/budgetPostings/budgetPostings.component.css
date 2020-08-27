@@ -1,0 +1,6 @@
+
+
+.v-table tr.v-selected.v-selected {
+    background: green;
+    color: red;
+}

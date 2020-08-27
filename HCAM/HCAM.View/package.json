@@ -1,0 +1,30 @@
+{
+  "name": "hcam",
+  "version": "1.0.0",
+  "description": "Home Cash Account Management",
+  "productName": "HCAM",
+  "cordovaId": "org.cordova.quasar.app",
+  "author": "El Jedidja Neville",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "axios": "^0.17.1",
+    "cors": "^2.8.4",
+    "vue-i18n": "^7.3.3",
+    "vuelidate": "^0.6.2"
+  },
+  "devDependencies": {
+    "quasar-cli": "^0.15.9"
+  },
+  "engines": {
+    "node": ">= 8.9.0",
+    "npm": ">= 5.6.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 10"
+  ]
+}
